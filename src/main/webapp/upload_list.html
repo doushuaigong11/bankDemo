@@ -1,0 +1,32 @@
+<script src="js/jquery-1.8.3.min.js" type="text/javascript"></script>
+<script src="js/jquery.form.min.js" type="text/javascript"></script>
+
+<!--上传文件的form表单里面的属性必须是  method="post" enctype="multipart/form-data" -->
+<form method="post" enctype="multipart/form-data">
+    <input type="file" name="upfile"><br>
+    <input type="submit" value="上传">
+</form>
+
+
+<script>
+    $("form").submit(function () {
+        //$.ajax()  不能异步上传
+        //ajaxSubmit() 是jquery.form.min.js这个文件提供的
+        $("form").ajaxSubmit({
+            type:"post",
+            url:"user/upload",
+            data:$("form").serialize(),
+            dataType:"json",
+            success:function (data) {
+                alert(data.info)
+                if(data.code == 1) {
+                    window.parent.updateImage();
+                } else {
+                    alert(data.info)
+                }
+
+            }
+        })
+        return false;
+    })
+</script>

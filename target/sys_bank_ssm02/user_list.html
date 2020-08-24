@@ -1,0 +1,107 @@
+
+
+
+<table class="layui-hide" id="test" lay-filter="test"></table>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="updatePassword">修改密码</a>
+</script>
+
+
+<script>
+    layui.use(['table', 'laydate', "laypage", "layer", 'carousel', 'upload', 'element', 'slider'], function () {
+//初始化table组件对象
+        var table = layui.table
+            , laypage = layui.laypage//分页的组件
+            , layer = layui.layer//弹框
+            , laydate = layui.laydate//日期组件
+            , element = layui.element;//元素的操作
+
+        table.render({
+            elem: '#test'
+            , url: 'user/findAll'
+            , totalRow: true
+            , cols: [[
+//,{field:'id', title:'序号', sort: true}
+                {type: 'numbers', title: '序号'}
+                , {field: 'uid', title: '帐户id', sort: true}
+                , {field: 'bankCode', title: '帐户'}
+                , {field: 'password', title: '密码'}
+                , {field: 'balance', title: '余额'}
+                , {field: 'status', title: '状态',}
+                , {field: 'imgPath', title: '图片路径'}
+                ,{fixed: 'right', title:'操作', toolbar: '#barDemo'}
+
+//,{field:'music_date', title:'添加时间',templet:"<div>{{layui.util.toDateString(d.create_time, 'yyyy-MM-dd HH:mm:ss')}}</div> "}
+            ]]
+            , page: true
+        });
+        //监听行工具事件
+        table.on('tool(test)', function(obj){
+            var data = obj.data;
+         if(obj.event === 'updatePassword'){
+             updatePassword(data);
+            }
+
+        });
+    });
+
+    function updatePassword(data){
+        layer.open({
+            type:1,
+            content:$('#updatePassword').html(),
+            title:'修改',
+            area:['600px','600px'],
+            btn:['提交','取消'],//可以写多个按钮
+            success:function () {
+                // $('#speakerId1').val(data.id);
+                $('#password').val(data.info.password)
+                layui.form.render();//后追加到页面的元素，layui不渲染，必须render
+            },
+            yes:function (data) {
+                alert(data.info);
+                var json = {
+                    'password':$("#password").val()
+                }
+
+                $.ajax({
+                    url:'/user/updatePassword',
+                    data:json,
+                    method:'post',
+                    success:function(data) {
+                        alert(data.info.password)
+                        console.log(data.info.password)
+                        if (data.code ==1) {
+                            alert("修改成功")
+                            window.location.reload();//重新加载
+                        }
+                        layui.form.render();
+                    }
+                })
+            }
+        });
+    }
+
+</script>
+
+
+<!--修改-->
+<script type="text/html" id="updatePassword">
+    <form id="user-edit-form" style="width: 80%" class="layui-form" lay-filter="user-edit-form">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label" >新密码</label>
+            <div class="layui-input-block">
+                <input id="password" type="text" name="password" required lay-verify="required"
+                       autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+
+
+    </form>
+</script>
+
+
+
+
+

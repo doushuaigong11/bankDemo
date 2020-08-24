@@ -1,0 +1,83 @@
+
+<div id="content">
+<form>
+    <div class="layui-form  searchDiv">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">开始日期</label>
+                <div class="layui-input-inline">
+                    <input type="date" class="layui-input" id="test1" placeholder="yyyy-MM-dd">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">结束日期</label>
+                <div class="layui-input-inline">
+                    <input type="date" class="layui-input" id="test2" placeholder="yyyy-MM-dd">
+                </div>
+            </div>
+            <button class="layui-btn" data-type="reload">搜索</button>
+        </div>
+    </div>
+</form>
+
+    <table class="layui-hide" id="test" lay-filter="test"></table>
+</div>
+
+<script type="text/html" id="toolbarDemo"></script>
+
+<script>
+
+
+
+    layui.use(['table', 'laydate', "laypage", "layer", 'carousel', 'upload', 'element', 'slider'], function(){
+        //初始化table组件对象
+        var table = layui.table
+            ,laypage =layui.laypage//分页的组件
+            ,layer = layui.layer//弹框
+            ,laydate = layui.laydate//日期组件
+            ,element = layui.element;//元素的操作
+
+        table.render({
+            elem: '#test'
+            ,url:'trade/findAll'
+            ,id:"transferTable"
+            ,totalRow: true
+            ,title: '用户数据表'
+            ,cols: [[
+                //,{field:'id', title:'序号', sort: true}
+                 {type:'numbers', title:'序号'}
+                ,{field:'income', title:'收入'}
+                ,{field:'pay', title:'支出'}
+                ,{field:'balance', title:'余额',sort:true}
+                ,{field:'comment', title:'备注'}
+                ,{field:'createTime', title:'创建时间',sort:true,templet:"<div>{{layui.util.toDateString(d.create_time, 'yyyy-MM-dd HH:mm:ss')}}</div> "}
+                //,{field:'music_date', title:'添加时间',templet:"<div>{{layui.util.toDateString(d.create_time, 'yyyy-MM-dd HH:mm:ss')}}</div> "}
+            ]]
+            ,page: true
+        });
+
+        //搜索框有效果的情况
+        var  active = {
+            reload: function(){
+                //执行重载
+                table.reload('transferTable', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {//额外需要提交的参数
+
+                        beginTime:$("#test1").val(),
+                        endTime:$("#test2").val(),
+                    }
+                });
+            }
+        };
+
+        $('.searchDiv .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            console.log(type)
+            active[type] ? active[type].call(this) : '';
+        });
+
+    });
+</script>

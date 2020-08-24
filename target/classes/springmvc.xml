@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- 扫描控制器的注解 -->
+    <context:component-scan base-package="com.zz.controller,com.zz.common"></context:component-scan>
+
+    <!--    如果想要在控制器中方法的参数上直接使用验证器的话，就必须加这个类-->
+    <bean class="org.springframework.validation.beanvalidation.MethodValidationPostProcessor"></bean>
+    <!-- 重要配置！！！ -->
+    <!--    设置转换的服务-->
+    <!--    <mvc:annotation-driven conversion-service="convertorService" validator="validator">-->
+    <mvc:annotation-driven validator="validator">
+        <!-- 处理json里的日期数据，默认日期被fastjson转为时间戳数据 -->
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper">
+                    <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+                        <property name="dateFormat">
+                            <bean class="java.text.SimpleDateFormat">
+                                <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss"/>
+                            </bean>
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <!--    设置自定义的转化器-->
+    <!--    <bean id="convertorService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">-->
+    <!--        <property name="converters">-->
+    <!--            <list>-->
+    <!--                <bean class="com.zz.convert.CustomerDateConvert"></bean>-->
+
+    <!--            </list>-->
+    <!--        </property>-->
+
+    <!--    </bean>-->
+
+    <!-- 配置资源文件 -->
+    <bean id="hibernateMessages" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="defaultEncoding" value="UTF-8"></property>
+        <property name="basenames">
+            <list>
+                <value>ValidationMessages</value>
+            </list>
+        </property>
+    </bean>
+    <!-- 配置验证器 -->
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+        <property name="providerClass" value="org.hibernate.validator.HibernateValidator"></property>
+        <property name="validationMessageSource" ref="hibernateMessages"></property>
+    </bean>
+
+    <!--  url-pattern配置成/后，  使用如下配置将静态资源交给web服务器默认的servlet进行处理 -->
+    <mvc:default-servlet-handler></mvc:default-servlet-handler>
+
+    <!-- 文件上传的解析器  id的值不能改-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 上传文件的最大大小 ，单位字节 ，比如 1024 * 10240 = 10M-->
+        <property name="maxUploadSize" value="10485760"></property>
+
+    </bean>
+    <!--拦截器相关的配置-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!--            拦截所有资源包括一些静态资源  js-->
+            <mvc:mapping path="/**"/>
+            <!--除了js文件夹的所有的文件不被拦截其他的被拦截-->
+            <mvc:exclude-mapping path="/js/**"/>
+            <!--除了login.html login.do  不被拦截，其他的被拦截
+            -->
+            <mvc:exclude-mapping path="/layui/**"/>
+            <mvc:exclude-mapping path="/**/login.*"/>
+            <mvc:exclude-mapping path="/user/**"/>
+            <mvc:exclude-mapping path="/trade/**"/>
+            <mvc:exclude-mapping path="/images/**"/>
+            <mvc:exclude-mapping path="/static/**"/>
+            <bean class="com.zz.interceptor.LoginInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!-- 视图解析器 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!--        &lt;!&ndash; 前缀 &ndash;&gt;-->
+        <!--        <property name="prefix" value="/"></property>-->
+        <!--        &lt;!&ndash; 后缀 &ndash;&gt;-->
+        <!--        <property name="suffix" value=".jsp"></property>-->
+
+    </bean>
+</beans>

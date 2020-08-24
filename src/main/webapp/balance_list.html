@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="js/jquery-1.8.3.min.js"></script>
+<body>
+
+<h1>您的帐户余额是:</h1><br>
+<span style="font-size: 25px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;人民币:
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="balance"></span>元</span>
+</body>
+
+<script>
+
+    $(function () {
+        var data = {
+            'balance':$('#balance').val()
+        }
+        $.get("user/findBalance",data,function (data) {
+            if (data.code==1){
+                // alert(data.info)
+                $("#balance").html(data.info.balance)
+            }
+        })
+    })
+</script>
+
+</html>
